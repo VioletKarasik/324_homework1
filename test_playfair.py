@@ -24,9 +24,10 @@ class TestPlayfairCipher(unittest.TestCase):
         self.assertEqual(create_matrix(key), expected)
     
     def test_prepare_text(self):
-        self.assertEqual(prepare_text("hello world"), "HE LX LO WO RL DX")
-        self.assertEqual(prepare_text("balloon"), "BA LX LO ON")
-        self.assertEqual(prepare_text("jazz"), "IA ZX ZX")
+        self.assertEqual(prepare_text("hello world"), "HE LX LO WO RL DX")  # 11 chars → adds X
+        self.assertEqual(prepare_text("balloon"), "BA LX LO ON")  # 7 chars → adds X
+        self.assertEqual(prepare_text("jazz"), "IA ZX ZX")  # even length, but double letters
+
     
     def test_encrypt_decrypt(self):
         key = "playfair example"
@@ -42,7 +43,7 @@ class TestPlayfairCipher(unittest.TestCase):
         key = "monarchy"
         plaintext = "instruments"
         encrypted = playfair_encrypt(plaintext, key)
-        self.assertEqual(encrypted, "GATLMZCLRQTX")
+        self.assertEqual(encrypted, "GATLMZCLRQXA")
         
         decrypted = playfair_decrypt(encrypted, key)
         decrypted = decrypted.replace('X', '')

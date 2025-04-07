@@ -33,20 +33,24 @@ def prepare_text(text: str) -> str:
     text = re.sub(r'[^a-zA-Z]', '', text).upper()
     text = text.replace('J', 'I')
     
-    # Split into digraphs and handle double letters
+    processed = []
     i = 0
-    result = []
     while i < len(text):
-        if i == len(text) - 1:
-            result.append(text[i] + 'X')
-            break
-        if text[i] == text[i+1]:
-            result.append(text[i] + 'X')
-            i += 1
+        a = text[i]
+        if i + 1 < len(text):
+            b = text[i + 1]
+            if a == b:
+                processed.append(a + 'X')
+                i += 1
+            else:
+                processed.append(a + b)
+                i += 2
         else:
-            result.append(text[i] + text[i+1])
-            i += 2
-    return ' '.join(result)
+            processed.append(a + 'X')
+            i += 1
+
+    return ' '.join(processed)
+
 
 def find_position(matrix: list, char: str) -> tuple:
     """Find the row and column of a character in the matrix."""
@@ -79,22 +83,25 @@ def playfair_encrypt(plaintext: str, key: str) -> str:
 def playfair_decrypt(ciphertext: str, key: str) -> str:
     """Decrypt ciphertext using Playfair cipher."""
     matrix = create_matrix(key)
-    prepared_text = prepare_text(ciphertext)
-    plaintext = []
     
+    prepared_text = ' '.join(ciphertext[i:i+2] for i in range(0, len(ciphertext), 2))
+    
+    plaintext = []
     for digraph in prepared_text.split():
         a, b = digraph[0], digraph[1]
         row1, col1 = find_position(matrix, a)
         row2, col2 = find_position(matrix, b)
         
-        if row1 == row2:  # Same row
+        if row1 == row2:
             plaintext.append(matrix[row1][(col1 - 1) % 5] + matrix[row2][(col2 - 1) % 5])
-        elif col1 == col2:  # Same column
+        elif col1 == col2:
             plaintext.append(matrix[(row1 - 1) % 5][col1] + matrix[(row2 - 1) % 5][col2])
-        else:  # Rectangle rule
+        else:
             plaintext.append(matrix[row1][col2] + matrix[row2][col1])
     
     return ''.join(plaintext)
+
+
 
 if __name__ == "__main__":
     print("Playfair Cipher")
